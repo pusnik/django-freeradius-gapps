@@ -4,54 +4,53 @@ import string
 
 from django.contrib.auth.models import User
 
-from IDaaS.models import LdapUser
-from IDaaS.models import LdapGroup
-
 ALPHABET = string.ascii_letters + string.digits
 
-def copyToLdap(user_email):
+#here we should only create task to cleanup users that are suspended
+
+def copyToDjango(user_email):
     """
-    Task to copy GApps users to LDAP directory
+    Task to copy GApps to django user list
     """
     user = User.objects.get(email=user_email)
     social = user.social_auth.get(provider='google-oauth2')
-    print ("Get social")
-    print (social)
     domain = user_email.split('@')[1]
-    print(domain)
     response = requests.get(
             'https://www.googleapis.com/admin/directory/v1/users?domain={}'.format(domain),
                 params={'access_token': social.extra_data['access_token']}
         )
-    print (response.json())
     gappsUsers = response.json().get('users')
     # update records
-    confirmedLdapUsers = []
+    confirmedGappsUsers = []
     for gUser in gappsUsers:
-        print (gUser.get('primaryEmail'))
         try:
-            usr = LdapUser.objects.get(email=gUser.get('primaryEmail'))
-            #check if user needs to be deleted
+            usr = User.objects.get(username=gUser.get('primaryEmail'))
             if gUser['suspended']:
+                print ("User {} deleted!".format(gUser.get('primaryEmail')))
                 usr.delete()
                 continue
-        except LdapUser.DoesNotExist:
-            if gUser['suspended']:
+        except User.DoesNotExist:
+            if not gUser['suspended']:
+                print(gUser.get('first_name'))
+                usr = User.objects.create(
+                    email=gUser.get('primaryEmail'),
+                    username=gUser.get('primaryEmail'),
+                    first_name=gUser.get('name').get('givenName'),
+                    last_name=gUser.get('name').get('familyName'))
+                pwd = ''.join(secrets.choice(ALPHABET) for i in range(10))
+                usr.set_password(pwd)
+                #send email to newely created user with password
+                print(u"Created user {} with password: {}".format(gUser.get('primaryEmail'), pwd))
+            else:
                 continue
-            usr = LdapUser(email=gUser.get('primaryEmail'), password = ''.join(secrets.choice(ALPHABET) for i in range(10)))
-        
-        usr.group = 1
-        usr.uid = gUser['id'] 
-        usr.first_name = gUser['name']['givenName']
-        usr.last_name = gUser['name']['familyName']
-        usr.full_name = gUser['name']['fullName']
-        usr.username = gUser.get('primaryEmail')
-        usr.home_directory = "/"
-        usr.save()
+           
+        except Exception as e:
+            print (e)
+            continue
 
-        confirmedLdapUsers.append(usr.email)
+        confirmedGappsUsers.append(usr.email)
 
-    #delete users from ldap that are not gApps users
-    LdapUser.objects.all().exclude(email__in=confirmedLdapUsers).delete()
+    #delete users from django that are not gApps users
+    User.objects.all().exclude(email__in=confirmedGappsUsers).exclude(is_superuser=True).delete()
 
     return domain

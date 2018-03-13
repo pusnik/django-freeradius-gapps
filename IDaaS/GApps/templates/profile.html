@@ -18,37 +18,52 @@
                 <img src="
                     {% if request.session.avatar_url %}
                         {{request.session.avatar_url}}
+                    {% elif gender == 'female' %}
+                        {% static 'img/female.svg' %}
                     {% else %}
-                        http://danielzawadzki.com/codepen/01/icon.svg
+                        {% static 'img/male.svg' %}
                     {% endif %}" 
                 id="icon" alt="User Icon" />
                 
             </div>
             {% if request.session.isAdmin%}
             <a class="large-button" href="/accounts/schedule-sync/">
-                <span>Sync users to LDAP</span>
+                <span>Sync Google users to Django</span>
             </a>
             {% endif %}
-            
-            {% if hasLdap %}
-                <p>Change your wi-fi password.</p>
-                <!-- Password change Form -->
-                <form>
-                    <input type="password" id="login" name="login" placeholder="Password">
-                    <input type="password" id="password" name="login" placeholder="Password confirmation">
-                    <input type="submit" value="Change">
-                </form>
-            {% else %}
-                <h3>No wi-fi account found.<br />Please contact your admin.</h3>
-                <a class="large-button" href="/accounts/logout/">
+            <h3>Change your wi-fi password?</h3>
+            <div class="helptext">
+                {% if messages %}
+                    <div class="alert alert-success">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if form.errors %}
+                    <div class="alert alert-error">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <p>{{ error|escape }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error|escape }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="password" name="password1" id="id_password1" autocomplete="off" required placeholder="Password">
+                <input type="password" name="password2" id="id_password2" autocomplete="off" required placeholder="Password confirmation">
+                <input type="submit" value="Change">
+            </form>
+            <div class="push-right">
+                <a href="/accounts/logout/">
                     <span>Logout</span>
                 </a>
-            {% endif %}
-        
-            <div id="formFooter">
-               
-            </div>
-        
+            </div>          
         </div>
     </div>
 </body>

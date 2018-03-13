@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import ldap
+
+def _bool_env(val):
+    """Replaces string based environment values with Python booleans"""
+    return True if os.environ.get(val, False) == 'True' else False
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,8 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '6x9o^yuwmq8&7&w4k1&h87&250zynl0ett3ccd+nc6#%qjt986'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+DEBUG = _bool_env('DEBUG')
 ALLOWED_HOSTS = ['*']
 
 
@@ -41,7 +43,7 @@ INSTALLED_APPS = [
     'social_django',
     'IDaaS',
     'GApps',
-    'ldapdb',
+    'django_freeradius'
 ]
 
 MIDDLEWARE = [
@@ -80,14 +82,21 @@ WSGI_APPLICATION = 'IDaaS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+
+#########################
+# Databases
+#########################
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('DB_NAME', 'gapps_db'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASS', 'postgres'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', ''),
+        #'CONN_MAX_AGE': None,
     }
 }
-
-DATABASE_ROUTERS = ['ldapdb.router.Router']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -124,9 +133,12 @@ SOCIAL_AUTH_PIPELINE = (
     'GApps.pipeline.get_avatar',
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
-    'social_core.pipeline.user.user_details',
-    
+    'social_core.pipeline.user.user_details',  
 )
+
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+if os.environ.get('ALLOWED_DOMAINS'):
+    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = os.environ.get('ALLOWED_DOMAINS').split(',')
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -146,6 +158,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/static/'
 
 #LOGIN_REDIRECT_URL = ""
 LOGIN_URL = "/accounts/login/"

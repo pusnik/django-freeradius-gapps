@@ -42,15 +42,38 @@ h2 {
   padding: 20px;
 }
 
+.helptext {
+ 
+}
+
+.alert {
+  position: relative;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: .25rem
+}
+
+.alert-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb
+}
+
+.alert-success {
+  color: #004085;
+  background-color: #cce5ff;
+  border-color: #b8daff
+}
+
 #formContent {
   -webkit-border-radius: 10px 10px 10px 10px;
   border-radius: 10px 10px 10px 10px;
   background: #fff;
-  padding: 30px;
+  padding:10px 50px;
   width: 90%;
-  max-width: 450px;
+  max-width: 550px;
   position: relative;
-  padding: 0px;
   -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
   box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
   text-align: center;
@@ -79,7 +102,7 @@ h2.active {
 }
 
 .top-border {
-  margin-top:50px;
+  margin-top:30px;
 }
 
 /* FORM TYPOGRAPHY*/
@@ -88,7 +111,7 @@ h2.active {
   background-color: #56baed;
   border: none;
   color: white;
-  padding: 10px 80px;
+  padding: 10px 40px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -98,7 +121,7 @@ h2.active {
   box-shadow: 0 10px 30px 0 rgba(95,186,233,0.4);
   -webkit-border-radius: 5px 5px 5px 5px;
   border-radius: 5px 5px 5px 5px;
-  margin: 5px 20px 40px 20px;
+  margin: 5px 20px 20px 20px;
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
   -ms-transition: all 0.3s ease-in-out;
@@ -128,6 +151,10 @@ h2.active {
 
 .large-button > * {  
   vertical-align: middle;  
+}
+
+.push-right {
+  float:right;
 }
 
 /* FORM TYPOGRAPHY*/
@@ -298,8 +325,6 @@ input[type=password]:placeholder {
   width: 100%;
 }
 
-
-
 /* OTHERS */
 
 *:focus {
@@ -307,7 +332,7 @@ input[type=password]:placeholder {
 } 
 
 #icon {
-  width:40%;
+  width:25%;
   border-radius: 50%;
 }
 

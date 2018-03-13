@@ -20,6 +20,7 @@ from django.urls import path, include
 admin.autodiscover()
 
 urlpatterns = [
+    path('radius/', include('django_freeradius.urls', namespace='freeradius')),
     path('social/', include('social_django.urls', namespace="social")),
     path('admin/', admin.site.urls),
     path('accounts/', include('GApps.urls')),
