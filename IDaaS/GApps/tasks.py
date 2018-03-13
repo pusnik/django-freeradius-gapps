@@ -39,6 +39,7 @@ def copyToDjango(user_email):
                     last_name=gUser.get('name').get('familyName'))
                 pwd = ''.join(secrets.choice(ALPHABET) for i in range(10))
                 usr.set_password(pwd)
+                usr.save()
                 #send email to newely created user with password
                 print(u"Created user {} with password: {}".format(gUser.get('primaryEmail'), pwd))
             else:
