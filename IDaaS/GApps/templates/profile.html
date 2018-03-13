@@ -18,7 +18,7 @@
                 <img src="
                     {% if request.session.avatar_url %}
                         {{request.session.avatar_url}}
-                    {% elif gender == 'female' %}
+                    {% elif request.session.gender == 'female' %}
                         {% static 'img/female.svg' %}
                     {% else %}
                         {% static 'img/male.svg' %}
