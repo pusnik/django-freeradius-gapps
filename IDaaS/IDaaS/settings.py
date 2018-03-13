@@ -158,9 +158,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
-if not DEBUG:
-    STATIC_ROOT = '/static/'
+STATIC_ROOT = '/static/'
 
 #LOGIN_REDIRECT_URL = ""
 LOGIN_URL = "/accounts/login/"
