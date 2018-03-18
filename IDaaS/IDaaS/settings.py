@@ -27,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '6x9o^yuwmq8&7&w4k1&h87&250zynl0ett3ccd+nc6#%qjt986'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG =  _bool_env('DEBUG')
+DEBUG = _bool_env('DEBUG')
 ALLOWED_HOSTS = ['*']
 
 
@@ -162,6 +162,10 @@ STATIC_ROOT = '/static/'
 
 #LOGIN_REDIRECT_URL = ""
 LOGIN_URL = "/accounts/login/"
+
+# Radius settings for DB password creation. By default we use NT-Password hashes supported by PEAP MSCHAPv2
+# You can override them in local_setting.py file
+DEFAULT_RADIUS_PWD_TYPE="NT-Password"
 
 #import local settings
 from IDaaS.conf.local_settings import *

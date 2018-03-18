@@ -3,6 +3,10 @@ import requests
 import string
 
 from django.contrib.auth.models import User
+from django_freeradius.base.models import _encode_secret
+from django_freeradius.models import RadiusCheck
+
+from django.conf import settings
 
 ALPHABET = string.ascii_letters + string.digits
 
@@ -24,24 +28,22 @@ def copyToDjango(user_email):
     confirmedGappsUsers = []
     for gUser in gappsUsers:
         try:
-            usr = User.objects.get(username=gUser.get('primaryEmail'))
+            usr = RadiusCheck.objects.get(username=gUser.get('primaryEmail'))
             if gUser['suspended']:
                 print ("User {} deleted!".format(gUser.get('primaryEmail')))
                 usr.delete()
                 continue
-        except User.DoesNotExist:
+        except RadiusCheck.DoesNotExist:
             if not gUser['suspended']:
-                print(gUser.get('first_name'))
-                usr = User.objects.create(
-                    email=gUser.get('primaryEmail'),
+                pwd = "".join(secrets.choice(ALPHABET) for i in range(10))
+                usr = RadiusCheck.objects.create(
                     username=gUser.get('primaryEmail'),
-                    first_name=gUser.get('name').get('givenName'),
-                    last_name=gUser.get('name').get('familyName'))
-                pwd = ''.join(secrets.choice(ALPHABET) for i in range(10))
-                usr.set_password(pwd)
-                usr.save()
+                    attribute=settings.DEFAULT_RADIUS_PWD_TYPE,
+                    op=":=",
+                    value=_encode_secret(settings.DEFAULT_RADIUS_PWD_TYPE, pwd))
+    
                 #send email to newely created user with password
-                print(u"Created user {} with password: {}".format(gUser.get('primaryEmail'), pwd))
+                #print(u"Created user {} with password: {}".format(gUser.get('primaryEmail'),pwd))
             else:
                 continue
            
@@ -49,9 +51,9 @@ def copyToDjango(user_email):
             print (e)
             continue
 
-        confirmedGappsUsers.append(usr.email)
+        confirmedGappsUsers.append(usr.username)
 
     #delete users from django that are not gApps users
-    User.objects.all().exclude(email__in=confirmedGappsUsers).exclude(is_superuser=True).delete()
+    RadiusCheck.objects.all().exclude(username__in=confirmedGappsUsers).delete()
 
     return domain
